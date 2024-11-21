@@ -1,4 +1,5 @@
 
+#include "ch/brel/pdfpagemodel.h"
 #include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -27,7 +28,16 @@ int main(int argc, char **argv) {
   QUrl main_qml(QStringLiteral("qrc:/ch/brel/pdf-viewer-ui/main.qml"));
 
   QQmlApplicationEngine engine;
-  engine.rootContext()->setContextProperty("initialPdfPath", pdfPath);
+  PDFPageModel pdfModel;
+  if (!pdfPath.isEmpty()) {
+    pdfModel.setSource(pdfPath);
+  }
+
+  // Register PDF image provider
+  engine.addImageProvider("pdf", new PDFImageProvider(&pdfModel));
+
+  // Expose PDF model to QML
+  engine.rootContext()->setContextProperty("pdfModel", &pdfModel);
   engine.load(main_qml);
 
   return app.exec();

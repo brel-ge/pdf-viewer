@@ -19,4 +19,7 @@ class App : public QObject {
 
 public:
   App(QObject *parent = nullptr);
+
+public slots:
+  void exit();
 };
