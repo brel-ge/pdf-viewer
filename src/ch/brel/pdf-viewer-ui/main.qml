@@ -4,6 +4,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
 import ch.brel
+import ch.brel.theme
 import "../molecules"
 
 Window {
@@ -16,9 +17,6 @@ Window {
     color: "transparent"
     flags: Qt.FramelessWindowHint
 
-    /*!
-    \jsfunction closeAllMenus Closes all open menus.
-      */
     function icon(name) {
         if (name === undefined) {
             return "";
@@ -40,19 +38,45 @@ Window {
         return icon("camera/" + name);
     }
 
-    ScrollView {
+    Rectangle {
         anchors {
             top: parent.top
             left: parent.left
             bottom: parent.bottom
         }
         width: parent.width - 205
-        clip: true
+        color: Theme.backgroundColor
 
-        PDFViewer {
-            id: pdfViewer
+        ListView {
             anchors.fill: parent
-            source: initialPdfPath
+            model: pdfModel
+            spacing: 15
+            clip: true
+
+            // Efficient rendering with delegates
+            delegate: Item {
+                width: ListView.view.width
+                height: image.height
+
+                Image {
+                    id: image
+                    width: parent.width
+                    source: "image://pdf/" + pageNumber
+                    fillMode: Image.PreserveAspectFit
+                    asynchronous: true
+                }
+            }
+
+            // Smooth scrolling and efficient loading
+            ScrollBar.vertical: ScrollBar {
+                contentItem: Rectangle {
+                    implicitWidth: 6
+                    color: Theme.backgroundColor
+                }
+            }
+
+            // Caching for performance
+            cacheBuffer: height * 2
         }
     }
 
@@ -62,6 +86,9 @@ Window {
             top: parent.top
             right: parent.right
             bottom: parent.bottom
+        }
+        onHomeClicked: {
+            App.exit();
         }
     }
 

@@ -20,6 +20,7 @@ qt_add_qml_module(pdf-viewer-ui
   SOURCES
   app.cc app.h
   pdfviewer.cc pdfviewer.h
+  pdfpagemodel.cc pdfpagemodel.h 
   RESOURCE_PREFIX /
 )
 
