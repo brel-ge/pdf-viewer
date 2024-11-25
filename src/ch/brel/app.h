@@ -12,14 +12,15 @@
   The class is a singleton and is registered as a QML type.
 */
 
-class App : public QObject {
-  Q_OBJECT
-  QML_ELEMENT
-  QML_SINGLETON
+class App : public QObject
+{
+    Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
 public:
-  App(QObject *parent = nullptr);
+    explicit App(QObject *parent = nullptr);
 
 public slots:
-  void exit();
+    static void exit();
 };

@@ -3,15 +3,13 @@
 #include <QDebug>
 #include <QFontDatabase>
 
-using namespace Qt::Literals::StringLiterals;
+Theme::Theme(QObject *parent) : QObject(parent)
+{
 
-Theme::Theme(QObject *parent) : QObject(parent) {
+    QFontDatabase::addApplicationFont("/usr/share/fonts/truetype/Roboto-Regular.ttf");
+    QFontDatabase::addApplicationFont("/usr/share/fonts/truetype/Roboto-Bold.ttf");
 
-  QFontDatabase::addApplicationFont(
-      "/usr/share/fonts/truetype/Roboto-Regular.ttf");
-  QFontDatabase::addApplicationFont(
-      "/usr/share/fonts/truetype/Roboto-Bold.ttf");
-
-  m_boldFont = QFont("Roboto", 16, QFont::Bold);
-  m_regularFont = QFont("Roboto", 16);
+    const int defaultFontSize = 16;
+    m_boldFont = QFont("Roboto", defaultFontSize, QFont::Bold);
+    m_regularFont = QFont("Roboto", defaultFontSize, QFont::Normal);
 }
