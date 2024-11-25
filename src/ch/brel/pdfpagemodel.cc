@@ -2,96 +2,108 @@
 #include <QPainter>
 #include <QUrl>
 
-PDFPageModel::PDFPageModel(QObject *parent) : QAbstractListModel(parent) {
-  m_pageCache.setMaxCost(MAX_CACHE_SIZE);
+PDFPageModel::PDFPageModel(QObject *parent) : QAbstractListModel(parent)
+{
+    m_pageCache.setMaxCost(MAX_CACHE_SIZE);
 }
 
-int PDFPageModel::rowCount(const QModelIndex &parent) const {
-  Q_UNUSED(parent);
-  return m_document ? m_document->numPages() : 0;
+int PDFPageModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return m_document ? m_document->numPages() : 0;
 }
 
-QVariant PDFPageModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid() || !m_document) {
-    return QVariant();
-  }
+QVariant PDFPageModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || !m_document) {
+        return {};
+    }
 
-  int pageNum = index.row();
+    const int pageNum = index.row();
 
-  switch (role) {
-  case PageImageRole:
-    return renderPage(pageNum);
-  case PageNumberRole:
-    return pageNum + 1;
-  default:
-    return QVariant();
-  }
+    switch (role) {
+    case PageImageRole:
+        return renderPage(pageNum);
+    case PageNumberRole:
+        return pageNum + 1;
+    default:
+        return {};
+    }
 }
 
-QHash<int, QByteArray> PDFPageModel::roleNames() const {
-  QHash<int, QByteArray> roles;
-  roles[PageImageRole] = "pageImage";
-  roles[PageNumberRole] = "pageNumber";
-  return roles;
+QHash<int, QByteArray> PDFPageModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[PageImageRole] = "pageImage";
+    roles[PageNumberRole] = "pageNumber";
+    return roles;
 }
 
-QString PDFPageModel::source() const { return m_source; }
-
-void PDFPageModel::setSource(const QString &source) {
-  if (m_source != source) {
-    m_source = source;
-    loadDocument();
-    emit sourceChanged();
-  }
+QString PDFPageModel::source() const
+{
+    return m_source;
 }
 
-int PDFPageModel::pageCount() const {
-  return m_document ? m_document->numPages() : 0;
+void PDFPageModel::setSource(const QString &source)
+{
+    if (m_source != source) {
+        m_source = source;
+        loadDocument();
+        emit sourceChanged();
+    }
 }
 
-void PDFPageModel::loadDocument() {
-  beginResetModel();
-
-  QString filePath = QUrl(m_source).toLocalFile();
-  if (filePath.isEmpty()) {
-    filePath = m_source;
-  }
-
-  m_document = Poppler::Document::load(filePath);
-  m_pageCache.clear();
-
-  if (m_document) {
-    m_document->setRenderHint(Poppler::Document::TextAntialiasing);
-    m_document->setRenderHint(Poppler::Document::Antialiasing);
-  }
-
-  endResetModel();
-  emit pageCountChanged();
+int PDFPageModel::pageCount() const
+{
+    return m_document ? m_document->numPages() : 0;
 }
 
-QImage PDFPageModel::renderPage(int pageNum) const {
-  // Check cache first
-  QImage *cachedImage = m_pageCache.object(pageNum);
-  if (cachedImage) {
-    return *cachedImage;
-  }
+void PDFPageModel::loadDocument()
+{
+    beginResetModel();
 
-  if (!m_document || pageNum < 0 || pageNum >= m_document->numPages()) {
-    return QImage();
-  }
+    QString filePath = QUrl(m_source).toLocalFile();
+    if (filePath.isEmpty()) {
+        filePath = m_source;
+    }
 
-  std::unique_ptr<Poppler::Page> page(m_document->page(pageNum));
-  if (!page) {
-    return QImage();
-  }
+    m_document = Poppler::Document::load(filePath);
+    m_pageCache.clear();
 
-  // Render at a standard resolution with adaptive scaling
-  qreal dpi = 150.0; // Standard rendering resolution
-  QImage image = page->renderToImage(dpi, dpi);
+    if (m_document) {
+        m_document->setRenderHint(Poppler::Document::TextAntialiasing);
+        m_document->setRenderHint(Poppler::Document::Antialiasing);
+    }
 
-  // Cache the rendered image
-  m_pageCache.insert(pageNum, new QImage(image),
-                     image.width() * image.height() * image.depth() / 8);
+    endResetModel();
+    emit pageCountChanged();
+}
 
-  return image;
+QImage PDFPageModel::renderPage(int pageNum) const
+{
+    // Check cache first
+    QImage *cachedImage = m_pageCache.object(pageNum);
+    if (cachedImage != nullptr) {
+        return *cachedImage;
+    }
+
+    if (!m_document || pageNum < 0 || pageNum >= m_document->numPages()) {
+        return {};
+    }
+
+    std::unique_ptr<Poppler::Page> page(m_document->page(pageNum));
+    if (!page) {
+        return {};
+    }
+
+    // Render at a standard resolution with adaptive scaling
+    const qreal dpi = 150.0; // Standard rendering resolution
+    QImage image = page->renderToImage(dpi, dpi);
+
+    // Cache the rendered image
+    const int pixelSize = 8;
+    m_pageCache.insert(pageNum, new QImage(image),
+                       image.width() * image.height() * image.depth() / pixelSize);
+
+    return image;
 }

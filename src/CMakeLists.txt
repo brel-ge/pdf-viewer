@@ -16,7 +16,7 @@ target_include_directories(pdf-viewer PRIVATE
 target_link_libraries(pdf-viewer PRIVATE
   Qt6::Core
   Qt6::Quick
-  pdf-viewer-ui
+  pdf-viewer-uiplugin
 )
 
 install(TARGETS pdf-viewer DESTINATION bin)

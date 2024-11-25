@@ -16,8 +16,8 @@ jobs:
       # Install Qt
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
-      with:
-        version: "6.4"
+        with:
+          version: "6.4"
 
       - name: Install Qt6 and Poppler dependencies
         run: |
@@ -29,9 +29,10 @@ jobs:
             g++ \
             pkg-config
 
-      - name: Configure CMake
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-
       - name: Build Application
-        run: cmake --build build --config Release --parallel
+        run: make ci
 
+      - name: Clang Tidy
+        run: |
+          make clang
+          make tidy
