@@ -1,7 +1,7 @@
-import QtQuick 2.6
-import QtQuick.Window 2.0
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import ch.brel
 import ch.brel.theme
@@ -91,44 +91,4 @@ Window {
             App.exit();
         }
     }
-
-    //ProgressPopup {
-    //    id: powerProgressPopup
-    //    iconSource: progessIcon("power")
-    //    cancelable: false
-    //    progress: App.state.powerProgress
-    //    solid: true
-    //}
-    //
-    //MouseArea {
-    //    anchors.fill: parent
-    //    propagateComposedEvents: true
-    //
-    //    onPressed: mouse => {
-    //        App.resetStandbyTimer();
-    //        if (!window.currentMenuIsMainMenu()) {
-    //            if (timer.running) {
-    //                timer.restart();
-    //            }
-    //        }
-    //        if (App.state.standbyState) {
-    //            mouse.accepted = true;
-    //        } else {
-    //            mouse.accepted = false;
-    //        }
-    //    }
-    //
-    //    onReleased: mouse => {
-    //        mouse.accepted = false;
-    //    }
-    //    onPositionChanged: mouse => {
-    //        mouse.accepted = false;
-    //    }
-    //    onPressAndHold: mouse => {
-    //        mouse.accepted = false;
-    //    }
-    //    onClicked: mouse => {
-    //        mouse.accepted = false;
-    //    }
-    //}
 }
