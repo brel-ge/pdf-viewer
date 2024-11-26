@@ -48,15 +48,20 @@ Window {
         color: Theme.backgroundColor
 
         ListView {
+            id: pageList
             anchors.fill: parent
             model: pdfModel
-            spacing: 15
+            spacing: 5
             clip: true
+
+            onWidthChanged: {
+                pdfModel.pageWidth = width;
+            }
 
             // Efficient rendering with delegates
             delegate: Item {
                 width: ListView.view.width
-                height: image.height
+                height: pdfModel.pageHeight
 
                 Image {
                     id: image
@@ -64,19 +69,32 @@ Window {
                     source: "image://pdf/" + pageNumber
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
+                    cache: true
                 }
             }
 
             // Smooth scrolling and efficient loading
             ScrollBar.vertical: ScrollBar {
-                contentItem: Rectangle {
-                    implicitWidth: 6
-                    color: Theme.backgroundColor
+
+                contentItem: Item {
+                    implicitWidth: 30
+                    implicitHeight: 60
+                    Rectangle {
+                        anchors {
+                            verticalCenter: parent.verticalCenter
+                            horizontalCenter: parent.horizontalCenter
+                        }
+
+                        width: 15
+                        height: 60
+                        color: Theme.backgroundColor
+                        radius: 5
+                    }
                 }
             }
 
             // Caching for performance
-            cacheBuffer: height * 2
+            //cacheBuffer: height * 2
         }
     }
 

@@ -7,6 +7,25 @@ PDFPageModel::PDFPageModel(QObject *parent) : QAbstractListModel(parent)
     m_pageCache.setMaxCost(MAX_CACHE_SIZE);
 }
 
+int PDFPageModel::pageWidth() const
+{
+    return m_pageWidth;
+}
+
+void PDFPageModel::setPageWidth(int width)
+{
+    if (m_pageWidth == width) {
+        return;
+    }
+
+    qDebug() << "Setting page width to" << width;
+    m_pageWidth = width;
+
+    m_pageCache.clear();
+    emit pageWidthChanged();
+    emit dataChanged(index(0, 0), index(rowCount() - 1, 0), { PageImageRole });
+}
+
 int PDFPageModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
@@ -58,6 +77,11 @@ int PDFPageModel::pageCount() const
     return m_document ? m_document->numPages() : 0;
 }
 
+int PDFPageModel::pageHeigth() const
+{
+    return m_document ? m_document->page(0)->pageSize().height() : 0;
+}
+
 void PDFPageModel::loadDocument()
 {
     beginResetModel();
@@ -82,6 +106,7 @@ void PDFPageModel::loadDocument()
 QImage PDFPageModel::renderPage(int pageNum) const
 {
     // Check cache first
+    qDebug() << "Rendering page" << pageNum;
     QImage *cachedImage = m_pageCache.object(pageNum);
     if (cachedImage != nullptr) {
         return *cachedImage;
@@ -96,14 +121,22 @@ QImage PDFPageModel::renderPage(int pageNum) const
         return {};
     }
 
-    // Render at a standard resolution with adaptive scaling
-    const qreal dpi = 150.0; // Standard rendering resolution
+    // // Get original page size
+    QSizeF originalSize = page->pageSizeF();
+
+    // Calculate DPI to match target width
+    qreal scaling = m_pageWidth / originalSize.width();
+    qreal dpi = 72.0 * scaling;
     QImage image = page->renderToImage(dpi, dpi);
 
     // Cache the rendered image
     const int pixelSize = 8;
     m_pageCache.insert(pageNum, new QImage(image),
                        image.width() * image.height() * image.depth() / pixelSize);
+    if (m_pageHeigth != image.height()) {
+        m_pageHeigth = image.height();
+        pageHeigthChanged();
+    }
 
     return image;
 }
