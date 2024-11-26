@@ -12,6 +12,8 @@ class PDFPageModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
+    Q_PROPERTY(int pageWidth READ pageWidth WRITE setPageWidth NOTIFY pageWidthChanged)
+    Q_PROPERTY(int pageHeight MEMBER m_pageHeigth NOTIFY pageHeigthChanged)
 
 public:
     enum Roles { PageImageRole = Qt::UserRole + 1, PageNumberRole };
@@ -25,10 +27,16 @@ public:
     QString source() const;
     void setSource(const QString &source);
     int pageCount() const;
+    int pageHeigth() const;
+
+    int pageWidth() const;
+    void setPageWidth(int width);
 
 signals:
-    void sourceChanged();
-    void pageCountChanged();
+    void sourceChanged() const;
+    void pageCountChanged() const;
+    void pageWidthChanged() const;
+    void pageHeigthChanged() const;
 
 private:
     void loadDocument();
@@ -37,6 +45,8 @@ private:
     QString m_source;
     std::unique_ptr<Poppler::Document> m_document;
     mutable QCache<int, QImage> m_pageCache;
+    int m_pageWidth = 1066.0;
+    mutable int m_pageHeigth = 0;
     static const int MAX_CACHE_SIZE = 10; // Adjust as needed
 };
 
