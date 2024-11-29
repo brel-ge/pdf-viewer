@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite name="TstPdfModel" timestamp="2024&#x002D;11&#x002D;27T14:58:46" hostname="GE&#x002D;052&#x002D;Ks" tests="2" failures="0" errors="0" skipped="0" time="0.000">
+  <properties>
+    <property name="QTestVersion" value="6.8.0"/>
+    <property name="QtVersion" value="6.8.0"/>
+    <property name="QtBuild" value="Qt 6.8.0 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 14.2.1 20240910)"/>
+  </properties>
+  <testcase name="initTestCase" classname="TstPdfModel" time="0.000"/>
+  <testcase name="cleanupTestCase" classname="TstPdfModel" time="0.000"/>
+</testsuite>

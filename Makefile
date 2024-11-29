@@ -1,6 +1,7 @@
 
 TARGET_BUILD_PATH := build-target
 CLANG_BUILD_PATH := build-clang
+CI_BUILD_PATH := build-ci
 
 BIN_PATH := /exports/var-som-plus/usr/bin
 
@@ -9,6 +10,9 @@ all: build
 
 ${TARGET_BUILD_PATH}/ninja.build:
 	cmake -S . -B ${TARGET_BUILD_PATH} -G Ninja
+
+${CI_BUILD_PATH}/ninja.build:
+	cmake -S . -B ${CI_BUILD_PATH} -G Ninja -DENABLE_COVERAGE=true -DCMAKE_BUILD_TYPE=Debug
 
 ${CLANG_BUILD_PATH}/ninja.build: export CC=/usr/bin/clang
 ${CLANG_BUILD_PATH}/ninja.build: export CXX=/usr/bin/clang++
@@ -25,8 +29,16 @@ build: ${TARGET_BUILD_PATH}/ninja.build
 clang: ${CLANG_BUILD_PATH}/ninja.build compile_commands.json
 	cmake --build ${CLANG_BUILD_PATH}
 
-ci: ${TARGET_BUILD_PATH}/ninja.build
-	cmake --build ${TARGET_BUILD_PATH}
+test: export QT_QPA_PLATFORM=offscreen
+test: ${CI_BUILD_PATH}/ninja.build 
+	cmake --build ${CI_BUILD_PATH}
+	${CI_BUILD_PATH}/tests/tst-pdf-model/tst-pdf-model -junitxml -o test.xml
+	lcov --directory . --capture --output-file coverage.info
+	lcov --remove coverage.info '/usr/*' 'build-ci/*' 'pdf-viewer/Qt' --output-file coverage.info
+
+
+ci: ${CI_BUILD_PATH}/ninja.build
+	cmake --build ${CI_BUILD_PATH}
 	
 tidy: ${CLANG_BUILD_PATH}/ninja.build compile_commands.json
 	python run-clang-tidy.py -config-file=.clang-tidy -header-filter=.*  "$(CURDIR)/src/*"

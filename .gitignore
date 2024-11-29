@@ -1,4 +1,7 @@
 build-*
 \.cache
 compile_commands.json
+coverage*
+default.*
+test.xml
 
