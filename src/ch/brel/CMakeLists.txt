@@ -49,5 +49,6 @@ qt_add_resources(pdf-viewer-ui assets
   assets/icons/action/close.png
   assets/icons/action/chevron_left.png
   assets/icons/action/chevron_right.png
+  assets/icons/camera/close.png
   assets/icons/camera/home.png
 )

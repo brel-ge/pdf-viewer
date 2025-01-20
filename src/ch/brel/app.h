@@ -22,5 +22,6 @@ public:
     explicit App(QObject *parent = nullptr);
 
 public slots:
+    static void exitMain();
     static void exit();
 };
