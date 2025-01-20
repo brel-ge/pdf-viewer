@@ -44,7 +44,7 @@ Window {
             left: parent.left
             bottom: parent.bottom
         }
-        width: parent.width - 205
+        width: 1280 - 205
         color: Theme.backgroundColor
 
         ListView {

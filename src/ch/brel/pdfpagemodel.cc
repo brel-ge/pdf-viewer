@@ -1,10 +1,10 @@
 #include "pdfpagemodel.h"
-#include <QPainter>
 #include <QUrl>
+#include <QImage>
 
 PDFPageModel::PDFPageModel(QObject *parent) : QAbstractListModel(parent)
 {
-    m_pageCache.setMaxCost(MAX_CACHE_SIZE);
+    // m_pageCache.setMaxCost(MAX_CACHE_SIZE);
 }
 
 int PDFPageModel::pageWidth() const
@@ -21,7 +21,7 @@ void PDFPageModel::setPageWidth(int width)
     qDebug() << "Setting page width to" << width;
     m_pageWidth = width;
 
-    m_pageCache.clear();
+    // m_pageCache.clear();
     emit pageWidthChanged();
     emit dataChanged(index(0, 0), index(rowCount() - 1, 0), { PageImageRole });
 }
@@ -92,7 +92,7 @@ void PDFPageModel::loadDocument()
     }
 
     m_document = Poppler::Document::load(filePath);
-    m_pageCache.clear();
+    // m_pageCache.clear();
 
     if (m_document) {
         m_document->setRenderHint(Poppler::Document::TextAntialiasing);
@@ -107,10 +107,10 @@ QImage PDFPageModel::renderPage(int pageNum) const
 {
     // Check cache first
     qDebug() << "Rendering page" << pageNum;
-    QImage *cachedImage = m_pageCache.object(pageNum);
-    if (cachedImage != nullptr) {
-        return *cachedImage;
-    }
+    // QImage *cachedImage = m_pageCache.object(pageNum);
+    // if (cachedImage != nullptr) {
+    //     return *cachedImage;
+    // }
 
     if (!m_document || pageNum < 0 || pageNum >= m_document->numPages()) {
         return {};
@@ -122,17 +122,18 @@ QImage PDFPageModel::renderPage(int pageNum) const
     }
 
     // // Get original page size
-    QSizeF originalSize = page->pageSizeF();
+    const QSizeF originalSize = page->pageSizeF();
 
     // Calculate DPI to match target width
-    qreal scaling = m_pageWidth / originalSize.width();
-    qreal dpi = 72.0 * scaling;
+    const qreal defaultDpi = 72.0;
+    const qreal scaling = m_pageWidth / originalSize.width();
+    const qreal dpi = defaultDpi * scaling;
     QImage image = page->renderToImage(dpi, dpi);
 
     // Cache the rendered image
-    const int pixelSize = 8;
-    m_pageCache.insert(pageNum, new QImage(image),
-                       image.width() * image.height() * image.depth() / pixelSize);
+    // const int pixelSize = 8;
+    // m_pageCache.insert(pageNum, new QImage(image),
+    //                    image.width() * image.height() * image.depth() / pixelSize);
     if (m_pageHeigth != image.height()) {
         m_pageHeigth = image.height();
         pageHeigthChanged();

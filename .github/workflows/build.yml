@@ -27,6 +27,8 @@ jobs:
             ninja-build \
             libpoppler-qt6-dev \
             g++ \
+            clang \
+            lcov \
             pkg-config \
             just 
 
@@ -36,4 +38,23 @@ jobs:
       - name: Clang Tidy
         run: |
           just clang
+          just create-compile-commands
           just tidy
+      - name: test and coverage
+        run: |
+          just test
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: QT Tests
+          path: "*.xml"
+          reporter: java-junit
+          fail-on-error: true
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          format: lcov
+          files: coverage.info
