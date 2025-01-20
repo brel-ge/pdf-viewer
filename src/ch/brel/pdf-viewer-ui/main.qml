@@ -106,6 +106,10 @@ Window {
             bottom: parent.bottom
         }
         onHomeClicked: {
+            App.exitMain();
+        }
+
+        onExitClicked: {
             App.exit();
         }
     }
