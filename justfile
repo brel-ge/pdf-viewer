@@ -1,6 +1,7 @@
 # Set variables
 target-build-path := "build-target"
 clang-build-path := "build-clang"
+ci-build-path := "build-ci"
 bin-path := "/exports/var-som-plus/usr/bin"
 YOCTO_ENV := ". /opt/fslc-xwayland/pilatus-sdk-4.1/environment-setup-armv8a-fslc-linux &&"
 UID := `id -u`
@@ -23,7 +24,11 @@ create-clang-build:
 
 # Create symlink for compile commands
 create-compile-commands:
-    ln -s {{clang-build-path}}/compile_commands.json
+    #!/usr/bin/env bash
+    if [ ! -f compile_commands.json ]; then 
+        ln -s {{clang-build-path}}/compile_commands.json
+    fi
+
 
 # Build the project and install binary
 docker-build: create-target-build
@@ -37,13 +42,23 @@ build:
 clang: create-clang-build create-compile-commands
     cmake --build {{clang-build-path}}
 
+ci-create-target-build:
+    cmake -S . -B {{ci-build-path}} -G Ninja -DENABLE_COVERAGE=true -DCMAKE_BUILD_TYPE=Debug
 # CI build
-ci: create-target-build
-    cmake --build {{target-build-path}}
+ci: ci-create-target-build
+    cmake --build {{ci-build-path}}
+
+test: ci-create-target-build
+    #!/usr/bin/env bash
+    cmake --build {{ci-build-path}}
+    export QT_QPA_PLATFORM=offscreen
+    {{ci-build-path}}/tests/tst-pdf-model/tst-pdf-model -junitxml -o test.xml
+    lcov --directory . --capture --output-file coverage.info
+    lcov --remove coverage.info '/usr/*' 'build-ci/*' 'pdf-viewer/Qt' --output-file coverage.info --ignore-errors unused
 
 # Run clang-tidy checks
 tidy: create-clang-build create-compile-commands
-    python run-clang-tidy.py -config-file=.clang-tidy -header-filter=.* "$(pwd)/src/*"
+    python run-clang-tidy.py -config-file=.clang-tidy -header-filter=.* "{{justfile_directory()}}/src/*"
 
 # Setup target binaries
 targetbins:

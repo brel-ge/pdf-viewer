@@ -1,5 +1,6 @@
 
 #include "ch/brel/pdfpagemodel.h"
+#include "ch/brel/pdfimageprovider.h"
 #include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>

@@ -17,6 +17,7 @@
           cmake
           pkg-config
           libglvnd
+          lcov
         ];
         buildInputs = with pkgs;[
           pcre2

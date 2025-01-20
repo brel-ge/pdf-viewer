@@ -2,10 +2,30 @@
 
 add_subdirectory(theme)
 
+
+add_library(app-logic STATIC)
+
+target_sources(app-logic PRIVATE
+  pdfpagemodel.cc pdfpagemodel.h
+)
+
+target_include_directories(app-logic PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(app-logic PUBLIC
+  Qt6::Core
+  Qt6::Gui
+  poppler-qt6
+)
+
+
+
+
 add_library(pdf-viewer-ui STATIC)
 target_link_libraries(pdf-viewer-ui PRIVATE
+  app-logic
   Qt6::Quick
-  poppler-qt6
   ch-brel-themeplugin
 )
 
@@ -19,7 +39,7 @@ qt_add_qml_module(pdf-viewer-ui
   pdf-viewer-ui/main.qml
   SOURCES
   app.cc app.h
-  pdfpagemodel.cc pdfpagemodel.h 
+  pdfimageprovider.cc pdfimageprovider.h
   RESOURCE_PREFIX /
 )
 

@@ -3,7 +3,6 @@
 #include <QAbstractListModel>
 #include <QCache>
 #include <QObject>
-#include <QQuickImageProvider>
 #include <memory>
 #include <poppler/qt6/poppler-qt6.h>
 
@@ -44,41 +43,8 @@ private:
 
     QString m_source;
     std::unique_ptr<Poppler::Document> m_document;
-    mutable QCache<int, QImage> m_pageCache;
-    int m_pageWidth = 1066.0;
+    // mutable QCache<int, QImage> m_pageCache;
+    int m_pageWidth = 0;
     mutable int m_pageHeigth = 0;
     static const int MAX_CACHE_SIZE = 10; // Adjust as needed
-};
-
-class PDFImageProvider : public QQuickImageProvider
-{
-public:
-    explicit PDFImageProvider(PDFPageModel *model)
-        : QQuickImageProvider(QQuickImageProvider::Image), m_model(model)
-    {
-    }
-
-    QImage requestImage(const QString &imgId, QSize *size, const QSize &requestedSize) override
-    {
-        bool isInt = false;
-        const int pageNum = imgId.toInt(&isInt);
-        if (!isInt) {
-            return {};
-        }
-
-        auto img = m_model->data(m_model->index(pageNum - 1), PDFPageModel::PageImageRole)
-                           .value<QImage>();
-
-        if (!requestedSize.isNull() && requestedSize.isValid()) {
-            img = img.scaled(requestedSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        }
-
-        if (size != nullptr) {
-            *size = img.size();
-        }
-        return img;
-    }
-
-private:
-    PDFPageModel *m_model;
 };
