@@ -21,18 +21,17 @@
         buildInputs = with pkgs;[
           pcre2
           libffi
-          gst_all_1.gstreamer
-          gst_all_1.gst-plugins-base
           qt6.qtbase
           qt6.qttools
           qt6.qtdeclarative
           qt6.qtwebsockets
+          kdePackages.poppler
         ];
 
       in
       with pkgs;
       {
-        devShells = mkShell {
+        devShells.default = mkShell {
           inherit buildInputs;
           inherit nativeBuildInputs;
         };
