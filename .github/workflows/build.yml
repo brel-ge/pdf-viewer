@@ -27,12 +27,13 @@ jobs:
             ninja-build \
             libpoppler-qt6-dev \
             g++ \
-            pkg-config
+            pkg-config \
+            just 
 
       - name: Build Application
-        run: make ci
+        run: just ci
 
       - name: Clang Tidy
         run: |
-          make clang
-          make tidy
+          just clang
+          just tidy
