@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QCache>
+#include <QHash>
+#include <QMutex>
 #include <QObject>
+#include <QThreadPool>
 #include <memory>
 #include <poppler/qt6/poppler-qt6.h>
 
@@ -18,6 +20,7 @@ public:
     enum Roles { PageImageRole = Qt::UserRole + 1, PageNumberRole };
 
     explicit PDFPageModel(QObject *parent = nullptr);
+    ~PDFPageModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -40,11 +43,21 @@ signals:
 private:
     void loadDocument();
     QImage renderPage(int pageNum) const;
+    QImage renderPageImp(int pageNum) const; // Must be called with m_mutex held
+    void prefetchPages(int centerPage) const;
+    void evictDistantPages(int centerPage) const;
 
     QString m_source;
     std::unique_ptr<Poppler::Document> m_document;
-    // mutable QCache<int, QImage> m_pageCache;
+
+    mutable QMutex m_mutex;
+    mutable QHash<int, QImage> m_pageCache;
+    mutable QThreadPool m_prefetchPool;
+
     int m_pageWidth = 0;
     mutable int m_pageHeigth = 0;
-    static const int MAX_CACHE_SIZE = 10; // Adjust as needed
+
+    static const int MAX_CACHE_SIZE = 10;
+    static const int PREFETCH_AHEAD = 2;
+    static const int PREFETCH_BEHIND = 1;
 };

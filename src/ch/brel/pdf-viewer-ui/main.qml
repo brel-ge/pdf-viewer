@@ -63,6 +63,12 @@ Window {
                 width: ListView.view.width
                 height: pdfModel.pageHeight
 
+                // White placeholder so pages don't flash black while loading
+                Rectangle {
+                    anchors.fill: parent
+                    color: "white"
+                }
+
                 Image {
                     id: image
                     width: parent.width
@@ -93,8 +99,9 @@ Window {
                 }
             }
 
-            // Caching for performance
-            //cacheBuffer: height * 2
+            // Keep delegates alive for 2x viewport height above/below visible area
+            // so adjacent pages are pre-rendered before they scroll into view
+            cacheBuffer: height * 2
         }
     }
 
