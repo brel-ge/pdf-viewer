@@ -11,6 +11,7 @@ Button {
 
     icon.height: 48
     icon.width: 48
+    icon.color: Theme.foregroundColor
 
     display: AbstractButton.IconOnly
     highlighted: false
